@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encryption Playground — Caesar, ROT13, Vigenère & AES-GCM Cipher Lab | Dinal Studios</title>
+<meta name="description" content="Free online encryption playground: learn how encryption works with Caesar cipher, ROT13 and Vigenère encrypt/decrypt tools, plus a real AES-256-GCM demo powered by Web Crypto. Educational cyber security tool — everything runs in your browser.">
+<meta name="keywords" content="encryption playground, caesar cipher online, rot13 decoder, vigenere cipher, aes encryption online, cryptography for beginners, cipher tool, web crypto demo">
+<style>
+  * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+  body { margin: 0; background: #0a0f1a; color: #dbe4f3; }
+  header { background: radial-gradient(1000px 400px at 50% -80px, #14532d 0%, #0a0f1a 60%); padding: 46px 16px 30px; text-align: center; border-bottom: 1px solid #1d2b45; }
+  header h1 { margin: 0 0 8px; font-size: 32px; letter-spacing: .5px; }
+  header h1 span { color: #22c55e; }
+  header p { margin: 0; color: #93a5c4; font-size: 15px; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 22px 14px 46px; }
+  .card { background: #111a2c; border: 1px solid #1f2c47; border-radius: 14px; padding: 22px; margin-bottom: 20px; }
+  .card h2 { margin: 0 0 6px; font-size: 20px; color: #fff; }
+  .card h2 .tag { color: #22c55e; font-size: 13px; vertical-align: middle; }
+  .card .sub { color: #93a5c4; font-size: 13.5px; margin: 0 0 16px; }
+  textarea, input[type=text], input[type=password], input[type=number] { width: 100%; padding: 12px; border-radius: 9px; border: 1px solid #2a3a5c; background: #0a0f1a; color: #fff; font-size: 15px; }
+  textarea { min-height: 78px; resize: vertical; font-family: 'Consolas', 'Courier New', monospace; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+  .btn { background: #22c55e; color: #06280f; border: none; padding: 11px 20px; border-radius: 9px; cursor: pointer; font-weight: 700; font-size: 14px; }
+  .btn:hover { background: #2fe673; }
+  .btn.dark { background: #1f2c47; color: #dbe4f3; }
+  .btn.dark:hover { background: #2a3c61; }
+  .out { background: #0a0f1a; border: 1px dashed #2a3a5c; border-radius: 9px; padding: 13px; font-size: 14.5px; word-break: break-all; min-height: 24px; margin-top: 14px; font-family: 'Consolas', 'Courier New', monospace; white-space: pre-wrap; }
+  .out:empty::before { content: 'Output will appear here…'; color: #5b6c8f; font-family: 'Segoe UI', Arial, sans-serif; }
+  label.lbl { display: block; font-size: 13px; color: #93a5c4; margin: 12px 0 5px; }
+  .warnbox { background: #2a1414; border: 1px solid #7f1d1d; border-radius: 10px; padding: 14px 16px; font-size: 13.5px; color: #fecaca; margin-top: 14px; }
+  .okbox { background: #0f2417; border: 1px solid #14532d; border-radius: 10px; padding: 14px 16px; font-size: 13.5px; color: #bbf7d0; margin-top: 14px; }
+  .err { color: #fca5a5; font-size: 13.5px; margin-top: 10px; min-height: 18px; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  .tab { background: #1f2c47; color: #dbe4f3; border: 1px solid #2a3a5c; padding: 9px 16px; border-radius: 20px; cursor: pointer; font-size: 13.5px; font-weight: 600; }
+  .tab.active { background: #22c55e; color: #06280f; border-color: #22c55e; }
+  .hidden { display: none; }
+  table.alpha { border-collapse: collapse; margin-top: 12px; font-family: 'Consolas', monospace; font-size: 12.5px; }
+  table.alpha td { border: 1px solid #22304f; padding: 4px 6px; text-align: center; color: #93a5c4; }
+  table.alpha td b { color: #22c55e; display: block; }
+  footer { text-align: center; color: #5b6c8f; font-size: 12.5px; padding: 0 14px 34px; }
+  footer a { color: #22c55e; text-decoration: none; }
+  code { background: #0a0f1a; border: 1px solid #22304f; border-radius: 5px; padding: 1px 6px; font-size: 13px; color: #86efac; }
+  ul.learn { margin: 10px 0 0; padding-left: 18px; color: #aebbd6; font-size: 13.5px; line-height: 1.65; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🔐 Encryption <span>Playground</span></h1>
+  <p>Learn cryptography hands-on: classical ciphers + real AES-256-GCM — 100% in your browser</p>
+</header>
+<div class="wrap">
+
+  <div class="tabs">
+    <button class="tab active" data-tab="caesar">Caesar Cipher</button>
+    <button class="tab" data-tab="vigenere">Vigenère Cipher</button>
+    <button class="tab" data-tab="aes">AES-GCM (Modern)</button>
+    <button class="tab" data-tab="learn">Why It Matters</button>
+  </div>
+
+  <!-- CAESAR -->
+  <section id="tab-caesar" class="card">
+    <h2>Caesar Cipher <span class="tag">~100 BC</span></h2>
+    <p class="sub">Every letter is shifted by a fixed number of places in the alphabet. ROT13 is simply Caesar with a shift of 13 — because 13 is half of 26, the same operation encrypts and decrypts.</p>
+    <label class="lbl" for="caesarIn">Your text</label>
+    <textarea id="caesarIn" placeholder="Type a message, e.g. Attack at dawn">Attack at dawn</textarea>
+    <label class="lbl" for="caesarShift">Shift (1–25)</label>
+    <div class="row" style="margin-top:0">
+      <input type="number" id="caesarShift" value="3" min="1" max="25" style="max-width:120px">
+      <button class="btn" id="caesarEnc">Encrypt →</button>
+      <button class="btn dark" id="caesarDec">← Decrypt</button>
+      <button class="btn dark" id="rot13Btn">ROT13</button>
+      <button class="btn dark" id="caesarBrute">Show all 25 shifts</button>
+    </div>
+    <div class="out" id="caesarOut"></div>
+    <div id="caesarAll"></div>
+  </section>
+
+  <!-- VIGENERE -->
+  <section id="tab-vigenere" class="card hidden">
+    <h2>Vigenère Cipher <span class="tag">1553</span></h2>
+    <p class="sub">A keyword repeats over the message; each letter is shifted by the matching keyword letter. It resisted casual codebreaking for 300 years — until frequency analysis with the Kasiski examination defeated it.</p>
+    <label class="lbl" for="vigIn">Your text</label>
+    <textarea id="vigIn" placeholder="Type a message">Attack at dawn</textarea>
+    <label class="lbl" for="vigKey">Keyword (letters only)</label>
+    <input type="text" id="vigKey" value="LEMON" maxlength="40">
+    <div class="row">
+      <button class="btn" id="vigEnc">Encrypt →</button>
+      <button class="btn dark" id="vigDec">← Decrypt</button>
+    </div>
+    <div class="out" id="vigOut"></div>
+    <div class="err" id="vigErr"></div>
+  </section>
+
+  <!-- AES -->
+  <section id="tab-aes" class="card hidden">
+    <h2>AES-256-GCM <span class="tag">MODERN STANDARD</span></h2>
+    <p class="sub">This is real encryption — the same algorithm used by HTTPS, VPNs and encrypted messengers. Your password is stretched with PBKDF2 (150,000 iterations, random salt) into a 256-bit key, and every encryption uses a fresh random IV. Output format: <code>salt : iv : ciphertext</code> in Base64. Nothing leaves your device.</p>
+    <label class="lbl" for="aesIn">Message (plaintext to encrypt, or the Base64 token to decrypt)</label>
+    <textarea id="aesIn" placeholder="Type a secret message…"></textarea>
+    <label class="lbl" for="aesPass">Password</label>
+    <input type="password" id="aesPass" placeholder="Use a long, unique password" autocomplete="new-password">
+    <div class="row">
+      <button class="btn" id="aesEnc">Encrypt with AES-GCM →</button>
+      <button class="btn dark" id="aesDec">← Decrypt token</button>
+      <button class="btn dark" id="aesCopy">Copy output</button>
+    </div>
+    <div class="out" id="aesOut"></div>
+    <div class="err" id="aesErr"></div>
+    <div class="okbox">✅ Try it: encrypt a message, copy the token, then decrypt it with the same password. A wrong password fails completely — GCM authentication detects any tampering, so you get an error instead of garbage.</div>
+  </section>
+
+  <!-- LEARN -->
+  <section id="tab-learn" class="card hidden">
+    <h2>Why Classical Ciphers Are <span style="color:#f87171">Not Secure</span></h2>
+    <p class="sub">The classical ciphers above are wonderful teaching tools — and completely unsafe for real secrets. Here is why:</p>
+    <ul class="learn">
+      <li><b>Tiny key space.</b> Caesar has only 25 possible keys. A computer tries all of them in microseconds (tap “Show all 25 shifts” above). Real security needs a key space so large that trying every key is physically impossible — AES-256 has 2²⁵⁶ keys.</li>
+      <li><b>Letter patterns leak.</b> In English, “E” is the most common letter. Under Caesar or Vigenère, the most common ciphertext letter maps straight back to it — this is <b>frequency analysis</b>, known since the 9th century.</li>
+      <li><b>Structure survives encryption.</b> Word lengths, repeated words and punctuation stay visible. Modern ciphers destroy all visible structure.</li>
+      <li><b>No integrity.</b> Classical ciphers cannot detect tampering. AES-GCM is <i>authenticated</i> encryption: change one bit and decryption fails loudly.</li>
+      <li><b>Kerckhoffs's principle.</b> Real systems stay secure even when the algorithm is public — only the key is secret. Classical ciphers often relied on hiding the method itself.</li>
+    </ul>
+    <div class="warnbox">⚠️ <b>Never</b> protect real data with Caesar, ROT13 or Vigenère. ROT13 is fine for hiding spoilers in forums — it is an encoding convention, not security. For real secrets use AES-GCM, ChaCha20-Poly1305, or a trusted encrypted app.</div>
+    <ul class="learn">
+      <li><b>Learn next:</b> hashing vs encryption (they are different!), public-key cryptography (RSA, Diffie–Hellman), and why password storage uses slow salted hashes like bcrypt or Argon2.</li>
+    </ul>
+  </section>
+
+  <div class="card">
+    <h2>Privacy &amp; Ethics</h2>
+    <p class="sub" style="margin-bottom:0">Everything runs locally in your browser — no message, password or ciphertext is ever uploaded. This playground is an educational tool for learning how cryptography works and why modern standards replaced classical ciphers. Use encryption knowledge to protect your own data and communications.</p>
+  </div>
+</div>
+<footer>Built by <a href="https://github.com/anaskhan0009">Dinal Studios</a> · Encryption Playground — learn cryptography the hands-on way</footer>
+
+<script>
+(function(){
+  "use strict";
+  // ---- Tabs ----
+  var tabs = document.querySelectorAll('.tab');
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){
+      tabs.forEach(function(x){ x.classList.remove('active'); });
+      t.classList.add('active');
+      ['caesar','vigenere','aes','learn'].forEach(function(name){
+        document.getElementById('tab-'+name).classList.toggle('hidden', name !== t.dataset.tab);
+      });
+    });
+  });
+
+  // ---- Caesar ----
+  function caesar(text, shift){
+    shift = ((shift % 26) + 26) % 26;
+    return text.replace(/[a-zA-Z]/g, function(c){
+      var base = c <= 'Z' ? 65 : 97;
+      return String.fromCharCode((c.charCodeAt(0) - base + shift) % 26 + base);
+    });
+  }
+  var cIn = document.getElementById('caesarIn'), cShift = document.getElementById('caesarShift'),
+      cOut = document.getElementById('caesarOut'), cAll = document.getElementById('caesarAll');
+  function getShift(){ var v = parseInt(cShift.value, 10); return isNaN(v) ? 3 : Math.min(25, Math.max(1, v)); }
+  document.getElementById('caesarEnc').addEventListener('click', function(){ cAll.innerHTML=''; cOut.textContent = caesar(cIn.value, getShift()); });
+  document.getElementById('caesarDec').addEventListener('click', function(){ cAll.innerHTML=''; cOut.textContent = caesar(cIn.value, -getShift()); });
+  document.getElementById('rot13Btn').addEventListener('click', function(){ cAll.innerHTML=''; cOut.textContent = caesar(cIn.value, 13); });
+  document.getElementById('caesarBrute').addEventListener('click', function(){
+    var html = '<table class="alpha"><tr><td><b>Shift</b></td><td style="text-align:left"><b>Result</b></td></tr>';
+    for (var s = 1; s <= 25; s++){ html += '<tr><td>' + s + '</td><td style="text-align:left">' + caesar(cIn.value, s).replace(/</g,'&lt;') + '</td></tr>'; }
+    cAll.innerHTML = html + '</table>';
+    cOut.textContent = 'All 25 possible shifts shown below — this is why Caesar falls instantly: there is nowhere for a secret to hide.';
+  });
+  cOut.textContent = caesar(cIn.value, 3);
+
+  // ---- Vigenère ----
+  function vigenere(text, key, decrypt){
+    key = key.toUpperCase().replace(/[^A-Z]/g, '');
+    if (!key) return null;
+    var ki = 0, out = '';
+    for (var i = 0; i < text.length; i++){
+      var c = text[i];
+      if (/[a-zA-Z]/.test(c)){
+        var base = c <= 'Z' ? 65 : 97;
+        var k = key.charCodeAt(ki % key.length) - 65;
+        var v = c.charCodeAt(0) - base + (decrypt ? -k : k);
+        out += String.fromCharCode(((v % 26) + 26) % 26 + base);
+        ki++;
+      } else { out += c; }
+    }
+    return out;
+  }
+  var vIn = document.getElementById('vigIn'), vKey = document.getElementById('vigKey'),
+      vOut = document.getElementById('vigOut'), vErr = document.getElementById('vigErr');
+  function runVig(decrypt){
+    var r = vigenere(vIn.value, vKey.value, decrypt);
+    if (r === null){ vErr.textContent = 'Please enter a keyword containing at least one letter (A–Z).'; vOut.textContent=''; return; }
+    vErr.textContent = ''; vOut.textContent = r;
+  }
+  document.getElementById('vigEnc').addEventListener('click', function(){ runVig(false); });
+  document.getElementById('vigDec').addEventListener('click', function(){ runVig(true); });
+  vOut.textContent = vigenere(vIn.value, vKey.value, false);
+
+  // ---- AES-GCM via WebCrypto ----
+  var aIn = document.getElementById('aesIn'), aPass = document.getElementById('aesPass'),
+      aOut = document.getElementById('aesOut'), aErr = document.getElementById('aesErr');
+  var enc = new TextEncoder(), dec = new TextDecoder();
+  function b64(buf){ var bytes = new Uint8Array(buf), s = ''; for (var i=0;i<bytes.length;i++) s += String.fromCharCode(bytes[i]); return btoa(s); }
+  function unb64(str){ var s = atob(str), bytes = new Uint8Array(s.length); for (var i=0;i<s.length;i++) bytes[i] = s.charCodeAt(i); return bytes; }
+  function deriveKey(password, salt){
+    return crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey'])
+      .then(function(base){
+        return crypto.subtle.deriveKey({ name:'PBKDF2', salt: salt, iterations: 150000, hash: 'SHA-256' },
+          base, { name:'AES-GCM', length: 256 }, false, ['encrypt','decrypt']);
+      });
+  }
+  document.getElementById('aesEnc').addEventListener('click', function(){
+    aErr.textContent = '';
+    if (!aPass.value){ aErr.textContent = 'Enter a password first.'; return; }
+    if (!aIn.value){ aErr.textContent = 'Type a message to encrypt.'; return; }
+    var salt = crypto.getRandomValues(new Uint8Array(16));
+    var iv = crypto.getRandomValues(new Uint8Array(12));
+    deriveKey(aPass.value, salt).then(function(key){
+      return crypto.subtle.encrypt({ name:'AES-GCM', iv: iv }, key, enc.encode(aIn.value));
+    }).then(function(ct){
+      aOut.textContent = b64(salt) + ':' + b64(iv) + ':' + b64(ct);
+    }).catch(function(){ aErr.textContent = 'Encryption failed in this browser.'; });
+  });
+  document.getElementById('aesDec').addEventListener('click', function(){
+    aErr.textContent = '';
+    if (!aPass.value){ aErr.textContent = 'Enter the password used for encryption.'; return; }
+    var parts = aIn.value.trim().split(':');
+    if (parts.length !== 3){ aErr.textContent = 'That does not look like an AES token from this tool (expected salt:iv:ciphertext).'; return; }
+    var salt, iv, ct;
+    try { salt = unb64(parts[0]); iv = unb64(parts[1]); ct = unb64(parts[2]); }
+    catch(e){ aErr.textContent = 'The token is not valid Base64.'; return; }
+    deriveKey(aPass.value, salt).then(function(key){
+      return crypto.subtle.decrypt({ name:'AES-GCM', iv: iv }, key, ct);
+    }).then(function(pt){
+      aOut.textContent = dec.decode(pt);
+    }).catch(function(){ aErr.textContent = 'Decryption failed — wrong password, or the token was altered. AES-GCM refuses tampered data.'; });
+  });
+  document.getElementById('aesCopy').addEventListener('click', function(){
+    if (!aOut.textContent) return;
+    if (navigator.clipboard) navigator.clipboard.writeText(aOut.textContent);
+  });
+})();
+</script>
+</body>
+</html>
